@@ -5,7 +5,7 @@ Input file:     sort.in
 Output file:    sort.out
 Time limit:     2 seconds
 Memory limit:   256 megabytes
- 
+
 Given a sequence of integer numbers.
 Your task is to sort it in a non-decreasing order using the mergesort algorithm.
 
@@ -54,5 +54,56 @@ will be accepted if it manages to perform sorting within time and memory limits.
 Note that every correct output will have 2n − 1 descriptions of merges, and for all 1
 i n there will be a record i i ai  ai, where ai is the i-th element of the initial sequence. 
 """
+import sys
+import mmap
 
-# 
+def mergesort(h, lst):                  # h: beginning index of list
+    # merge sort body
+    L = len(lst)
+    if L == 1:                          # base case
+        writedown(' '.join(map(str, [h+1, h+1, lst[0], lst[-1]])))
+        return lst
+    else:                               # recursive case, pass the original index to merger
+        return merger(h, mergesort(h, lst[:int(L/2)]), mergesort(h+int(L/2), lst[int(L/2):]))
+
+def merger(s, l, r):
+    # merger
+    # print('BEFORE', l+r)
+    new, curl, curr = [], 0, 0
+    # print('begin merging...')
+    while curl < len(l) and curr < len(r):
+        if l[curl] <= r[curr]:
+            new += l[curl],
+            curl += 1
+        else:
+            new += r[curr],
+            curr += 1
+    if curl < len(l): new += l[curl:]
+    if curr < len(r): new += r[curr:]
+    # print('AFTER', new)
+    writedown(' '.join(map(str, [s+1, s+len(new), new[0], new[-1]])))
+    return new
+
+def writedown(line):
+    # writer
+    with open('sort.out', 'a') as output:
+        output.write(line)
+        output.write('\n')
+        # print(line)
+        return
+
+with open('sort.in', 'r') as inputdata:             # read file
+    MP = mmap.mmap(inputdata.fileno(), 0, access=mmap.ACCESS_READ)
+    N = int(MP.readline())
+    ORIGIN = [int(x.decode()) for x in MP.readline()[:-2].split()]
+
+# while (True):
+#     ORIGIN = ['1','100','10','1001','1000','11','12','13','111','110','1111','1110','1100']
+#     ORIGIN = [x for x in map(int, ORIGIN)]
+    # print('ORIGIN', ORIGIN, type(ORIGIN[0]))
+    # print('SORTED:', sorted(ORIGIN))
+#     ORIGIN2 = [str(x) for x in ORIGIN]
+#     print('ORIGIN2', ORIGIN2)
+    
+    writedown(' '.join(map(str, mergesort(0, ORIGIN))))
+    # break
